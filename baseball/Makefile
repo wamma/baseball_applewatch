@@ -12,7 +12,7 @@ make:
 	flutter pub get
 
 	@echo "build ios..."
-	flutter build ios
+	flutter build ios --debug
 
 	@echo "📄 Checking Podfile..."
 	@if [ ! -f ios/Podfile ]; then \
