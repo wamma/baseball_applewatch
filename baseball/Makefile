@@ -11,9 +11,6 @@ make:
 	@echo "📦 Fetching dependencies..."
 	flutter pub get
 
-	@echo "build ios..."
-	flutter build ios --debug
-
 	@echo "📄 Checking Podfile..."
 	@if [ ! -f ios/Podfile ]; then \
 		echo "📄 Podfile not found. Initializing..."; \
@@ -38,7 +35,7 @@ init-podfile:
 	@test -f ios/Podfile || ( \
 	echo "📄 Creating Podfile..." && \
 	echo "# Uncomment this line to define a global platform for your project" > ios/Podfile && \
-	echo "platform :ios, '12.0'" >> ios/Podfile && \
+	echo "platform :ios, '16.0'" >> ios/Podfile && \
 	echo "" >> ios/Podfile && \
 	echo "ENV['COCOAPODS_DISABLE_STATS'] = 'true'" >> ios/Podfile && \
 	echo "" >> ios/Podfile && \

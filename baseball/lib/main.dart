@@ -14,8 +14,8 @@ const Map<String, String> kboTeams = {
   '두산 베어스': 'assets/logos/bears.png',
   '롯데 자이언츠': 'assets/logos/lotte.jpg',
   '삼성 라이온즈': 'assets/logos/samsung.png',
-  '한화 이글스': 'assets/logos/hanwha.jpg',
-  '키움 히어로즈': 'assets/logos/kia.png',
+  '한화 이글스': 'assets/logos/hanhwa.jpg',
+  '키움 히어로즈': 'assets/logos/kiwoom.png',
 };
 
 class MyApp extends StatelessWidget {
