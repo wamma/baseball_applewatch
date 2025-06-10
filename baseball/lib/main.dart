@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
@@ -61,19 +63,91 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('마이팀 설정'),
-      ),
+      appBar: AppBar(title: Text('마이팀 설정')),
       body: ListView.builder(
         itemCount: kboTeams.length,
         itemBuilder: (context, index) {
           final team = kboTeams.keys.elementAt(index);
           final isSelected = team == selectedTeam;
           return ListTile(
-            title: Text(''),
+            title: Text(team),
             leading: Image.asset(kboTeams[team]!),
             trailing: isSelected ? Icon(Icons.check, color: Colors.green) : null,
             onTap: () => saveTeam(team),
+          );
+        },
+      ),
+      floatingActionButton: selectedTeam != null
+          ? FloatingActionButton.extended(
+              label: Text("다음"),
+              icon: Icon(Icons.arrow_forward),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        TeamStatusPage(teamName: selectedTeam!),
+                  ),
+                );
+              },
+            )
+          : null,
+    );
+  }
+}
+
+class TeamStatusPage extends StatelessWidget {
+  final String teamName;
+
+  const TeamStatusPage({required this.teamName});
+
+  Future<Map<String, dynamic>> fetchScore(String teamName) async {
+    final encoded = Uri.encodeComponent(teamName.replaceAll(" ", ""));
+    final url = 'http://10.19.208.173:8000/score?team=$encoded'; // 로컬 테스트용
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('점수 가져오기 실패');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('$teamName 실시간 경기')),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: fetchScore(teamName),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('오류 발생: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.containsKey('error')) {
+            return Center(child: Text('경기 정보를 불러올 수 없습니다.'));
+          }
+
+          final data = snapshot.data!;
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${data["my_team"]} vs ${data["opponent"]}',
+                  style: TextStyle(fontSize: 24),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  '${data["my_score"]} : ${data["opponent_score"]}',
+                  style: TextStyle(fontSize: 32),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  data["status"],
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
           );
         },
       ),
