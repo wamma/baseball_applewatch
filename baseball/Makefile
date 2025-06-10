@@ -1,10 +1,13 @@
 # Makefile
 
-.PHONY: default
+.PHONY: default make update-url init-podfile fix-xcode
 
 default: make
 
 make:
+	@echo "🌐 Starting cloudflared tunnel and updating main.dart URL..."
+	$(MAKE) update-url
+
 	@echo "🧹 Cleaning Flutter project..."
 	flutter clean
 
@@ -22,9 +25,29 @@ make:
 	pod cache clean --all && pod install
 
 	@echo "✅ Done!"
-
-	@echo "open ios/Runner.xcworkspace"
+	@echo "📂 open ios/Runner.xcworkspace"
 	open ios/Runner.xcworkspace
+
+update-url:
+	@echo "🌐 Launching cloudflared tunnel (background) and extracting public URL..."
+
+	@mkdir -p tmp
+	@rm -f tmp/cloudflared.log
+
+	@nohup cloudflared tunnel --url http://localhost:8000 > tmp/cloudflared.log 2>&1 &
+
+	@sleep 5
+
+	@TUNNEL_URL=$$(grep -o 'https://[a-zA-Z0-9.-]*\.trycloudflare\.com' tmp/cloudflared.log | head -n 1); \
+	echo "📌 New tunnel URL: $$TUNNEL_URL"; \
+	if [ -n "$$TUNNEL_URL" ]; then \
+		sed -i '' "s|final url = 'https://.*';|final url = '$${TUNNEL_URL}/score?team=\$$$encoded';|" lib/main.dart; \
+	else \
+		echo "❌ Failed to extract tunnel URL"; \
+	fi
+
+	@echo "🧹 Cleaning up..."
+	@rm -rf tmp
 
 
 fix-xcode:

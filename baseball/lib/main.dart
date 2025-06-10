@@ -103,7 +103,7 @@ class TeamStatusPage extends StatelessWidget {
 
   Future<Map<String, dynamic>> fetchScore(String teamName) async {
     final encoded = Uri.encodeComponent(teamName.replaceAll(" ", ""));
-    final url = 'http://10.19.208.173:8000/score?team=$encoded'; // 로컬 테스트용
+    final url = 'https://maritime-music-xbox-reasoning.trycloudflare.com/score?team=$ncoded'; // 로컬 테스트용
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
