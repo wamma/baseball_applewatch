@@ -44,7 +44,7 @@ update-url:
 	@TUNNEL_URL=$$(grep -o 'https://[a-zA-Z0-9.-]*\.trycloudflare\.com' tmp/cloudflared.log | head -n 1); \
 	echo "📌 New tunnel URL: $$TUNNEL_URL"; \
 	if [ -n "$$TUNNEL_URL" ]; then \
-		sed -i '' "s|final url = 'https://.*';|final url = '$${TUNNEL_URL}/score?team=\$$$encoded';|" lib/main.dart; \
+		sed -i '' "s|final url = 'https://.*';|final url = '$${TUNNEL_URL}/score?team=\$$encoded';|" lib/main.dart; \
 	else \
 		echo "❌ Failed to extract tunnel URL"; \
 	fi
