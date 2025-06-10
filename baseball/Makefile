@@ -104,3 +104,10 @@ init-podfile:
 	echo "  end" >> ios/Podfile && \
 	echo "end" >> ios/Podfile \
 	)
+
+fclean:
+	docker-compose down --rmi all -v --remove-orphans
+	docker system prune -af --volumes
+
+re: fclean
+	$(MAKE) make
