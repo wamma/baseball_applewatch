@@ -5,6 +5,9 @@
 default: make
 
 make:
+	@echo "🐳 Starting Docker containers (background)..."
+	docker-compose up -d
+
 	@echo "🌐 Starting cloudflared tunnel and updating main.dart URL..."
 	$(MAKE) update-url
 
