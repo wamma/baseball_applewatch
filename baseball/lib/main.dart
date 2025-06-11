@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,60 +97,81 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
   }
 }
 
-class TeamStatusPage extends StatelessWidget {
+class TeamStatusPage extends StatefulWidget {
   final String teamName;
 
   const TeamStatusPage({required this.teamName});
 
-  Future<Map<String, dynamic>> fetchScore(String teamName) async {
-    final encoded = Uri.encodeComponent(teamName.replaceAll(" ", ""));
-    final url = 'https://maritime-music-xbox-reasoning.trycloudflare.com/score?team=$ncoded'; // 로컬 테스트용
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('점수 가져오기 실패');
+  @override
+  State<TeamStatusPage> createState() => _TeamStatusPageState();
+}
+
+class _TeamStatusPageState extends State<TeamStatusPage> {
+  Map<String, dynamic>? data;
+  String? error;
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchScore();
+    timer = Timer.periodic(Duration(minutes: 1), (_) => fetchScore()); // 🔁 1분마다
+  }
+
+  Future<void> fetchScore() async {
+    try {
+      final encoded = Uri.encodeComponent(widget.teamName.replaceAll(" ", ""));
+      final url = 'https://resistant-speaks-bare-gazette.trycloudflare.com/score?team=$encoded';
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        if (!mounted) return;
+        setState(() {
+          data = decoded;
+          error = null;
+        });
+      } else {
+        throw Exception('서버 응답 오류');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        error = e.toString();
+      });
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('$teamName 실시간 경기')),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: fetchScore(teamName),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('오류 발생: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.containsKey('error')) {
-            return Center(child: Text('경기 정보를 불러올 수 없습니다.'));
-          }
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 
-          final data = snapshot.data!;
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${data["my_team"]} vs ${data["opponent"]}',
-                  style: TextStyle(fontSize: 24),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  '${data["my_score"]} : ${data["opponent_score"]}',
-                  style: TextStyle(fontSize: 32),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  data["status"],
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
-          );
-        },
+  @override
+  Widget build(BuildContext context) {
+    if (error != null) {
+      return Scaffold(body: Center(child: Text("오류: $error")));
+    }
+    if (data == null) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (data!.containsKey('error')) {
+      return Scaffold(body: Center(child: Text('경기 정보를 불러올 수 없습니다.')));
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text('${widget.teamName} 실시간 경기')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('${data!["my_team"]} vs ${data!["opponent"]}', style: TextStyle(fontSize: 24)),
+            SizedBox(height: 16),
+            Text('${data!["my_score"]} : ${data!["opponent_score"]}', style: TextStyle(fontSize: 32)),
+            SizedBox(height: 16),
+            Text(data!["status"], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          ],
+        ),
       ),
     );
   }
