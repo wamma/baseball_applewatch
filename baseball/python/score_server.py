@@ -51,42 +51,34 @@ async def fetch_kbo_score_html() -> str:
         return html
 
 # HTML 파싱
-def parse_kbo_score_from_html(html: str, my_team='두산'):
+def parse_all_kbo_games_from_html(html: str):
     soup = BeautifulSoup(html, 'html.parser')
+    results = []
+
     for game in soup.select('li.game-cont'):
         away_team = game.get('away_nm')
         home_team = game.get('home_nm')
-        if my_team not in (away_team, home_team):
-            continue
-
-        is_away = my_team == away_team
-        opponent = home_team if is_away else away_team
 
         away_logo = game.select_one('.team.away .emb img')
         home_logo = game.select_one('.team.home .emb img')
         away_logo_url = 'https:' + away_logo.get('src') if away_logo else ''
         home_logo_url = 'https:' + home_logo.get('src') if home_logo else ''
-        my_logo = away_logo_url if is_away else home_logo_url
-        opponent_logo = home_logo_url if is_away else away_logo_url
 
         away_pitcher = game.select_one('.team.away .today-pitcher p')
         home_pitcher = game.select_one('.team.home .today-pitcher p')
         away_pitcher_name = away_pitcher.text.strip().replace('선', '').strip() if away_pitcher else ''
         home_pitcher_name = home_pitcher.text.strip().replace('선', '').strip() if home_pitcher else ''
-        my_pitcher = away_pitcher_name if is_away else home_pitcher_name
-        opponent_pitcher = home_pitcher_name if is_away else away_pitcher_name
 
-        # 경기 상태 텍스트 (예: "경기예정", "8회말", "지연", "취소")
-        status_tag = game.select_one('.staus')  # 오타 아님!
+        status_tag = game.select_one('.staus')
         status_text = status_tag.text.strip() if status_tag else "상태 없음"
 
-        result = {
-            "my_team": my_team,
-            "opponent": opponent,
-            "my_logo": my_logo,
-            "opponent_logo": opponent_logo,
-            "my_pitcher": my_pitcher,
-            "opponent_pitcher": opponent_pitcher,
+        item = {
+            "away_team": away_team,
+            "home_team": home_team,
+            "away_logo": away_logo_url,
+            "home_logo": home_logo_url,
+            "away_pitcher": away_pitcher_name,
+            "home_pitcher": home_pitcher_name,
             "status": status_text
         }
 
@@ -95,20 +87,14 @@ def parse_kbo_score_from_html(html: str, my_team='두산'):
         home_score_tag = game.select_one('.team.home .score')
         if away_score_tag and home_score_tag:
             try:
-                away_score = int(away_score_tag.text.strip())
-                home_score = int(home_score_tag.text.strip())
-                my_score = away_score if is_away else home_score
-                opponent_score = home_score if is_away else away_score
-                result.update({
-                    "my_score": my_score,
-                    "opponent_score": opponent_score,
-                })
-            except Exception as e:
-                result["error"] = f"점수 파싱 실패: {str(e)}"
+                item["away_score"] = int(away_score_tag.text.strip())
+                item["home_score"] = int(home_score_tag.text.strip())
+            except:
+                item["score_error"] = "점수 파싱 실패"
 
-        return result
+        results.append(item)
 
-    return {"error": f"{my_team}의 경기를 찾을 수 없습니다."}
+    return {"games": results}
 
 
 # FastAPI 라우터
@@ -123,6 +109,15 @@ async def get_score(team: str = "두산"):
         return parse_kbo_score_from_html(html, my_team=normalized_team)
     except Exception as e:
         return {"error": f"서버 오류: {str(e)}"}
+
+@app.get("/games")
+async def get_all_games():
+    try:
+        html = await fetch_kbo_score_html()
+        return parse_all_kbo_games_from_html(html)
+    except Exception as e:
+        return {"error": f"전체 경기 파싱 실패: {str(e)}"}
+
 
 # 디버깅용 엔드포인트 - 모든 경기 정보 확인
 @app.get("/debug/games")

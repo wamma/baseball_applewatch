@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'team_selection_page.dart';
 import 'team_status_page.dart';
+import 'all_games_page.dart';
 
 
 class MyPageScreen extends StatefulWidget {
@@ -70,9 +71,21 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 label: Text("현재 경기 보기"),
               ),
             ],
+              SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AllGamesPage()),
+                );
+              },
+              icon: Icon(Icons.list),
+              label: Text("전체 경기 보기"),
+            ),
           ],
         ),
       ),
     );
   }
+
 }
