@@ -71,17 +71,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 label: Text("현재 경기 보기"),
               ),
             ],
-              SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => AllGamesPage()),
-                );
-              },
-              icon: Icon(Icons.list),
-              label: Text("전체 경기 보기"),
-            ),
           ],
         ),
       ),

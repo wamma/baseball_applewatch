@@ -19,7 +19,7 @@ class _AllGamesPageState extends State<AllGamesPage> {
   }
 
   Future<void> fetchAllGames() async {
-    final response = await http.get(Uri.parse("https://riverside-commander-levy-majority.trycloudflare.com/games"));
+    final response = await http.get(Uri.parse("https://history-atlantic-gilbert-morning.trycloudflare.com/games"));
     final data = json.decode(utf8.decode(response.bodyBytes));
     final list = (data['games'] as List).map((e) => GameInfo.fromJson(e)).toList();
     setState(() {
