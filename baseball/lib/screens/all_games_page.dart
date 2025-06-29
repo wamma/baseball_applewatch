@@ -19,14 +19,25 @@ class _AllGamesPageState extends State<AllGamesPage> {
   }
 
   Future<void> fetchAllGames() async {
-    final response = await http.get(Uri.parse("https://history-atlantic-gilbert-morning.trycloudflare.com/games"));
-    final data = json.decode(utf8.decode(response.bodyBytes));
-    final list = (data['games'] as List).map((e) => GameInfo.fromJson(e)).toList();
-    setState(() {
-      games = list;
-      isLoading = false;
-    });
+    try {
+      final response = await http.get(Uri.parse("https://petition-lies-definitely-fitness.trycloudflare.com/games"));
+      if (response.statusCode != 200) throw Exception("서버 응답 오류");
+
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      final list = (data['games'] as List).map((e) => GameInfo.fromJson(e)).toList();
+      setState(() {
+        games = list;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("AllGamesPage fetch 에러: $e");
+      setState(() {
+        isLoading = false;
+      });
+      // 에러 다이얼로그 등 보여줄 수도 있음
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

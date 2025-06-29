@@ -44,13 +44,15 @@ update-url:
 	@TUNNEL_URL=$$(grep -o 'https://[a-zA-Z0-9.-]*\.trycloudflare\.com' tmp/cloudflared.log | head -n 1); \
 	echo "📌 New tunnel URL: $$TUNNEL_URL"; \
 	if [ -n "$$TUNNEL_URL" ]; then \
-		sed -i '' "s|final url = 'https://.*';|final url = '$${TUNNEL_URL}/score?team=\$$encoded';|" lib/screens/all_games_page.dart; \
+		sed -i '' "s|final url = 'https://.*';|final url = '$${TUNNEL_URL}/score?team=\$$encoded';|" lib/screens/team_status_page.dart; \
+		sed -i '' "s|Uri.parse(\"https://.*\/games\")|Uri.parse(\"$${TUNNEL_URL}/games\")|g" lib/screens/all_games_page.dart; \
 	else \
 		echo "❌ Failed to extract tunnel URL"; \
 	fi
 
 	@echo "🧹 Cleaning up..."
 	@rm -rf tmp
+
 
 
 fix-xcode:

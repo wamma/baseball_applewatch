@@ -27,7 +27,7 @@ class _TeamStatusPageState extends State<TeamStatusPage> {
   Future<void> fetchScore() async {
     try {
       final encoded = Uri.encodeComponent(widget.teamName);
-      final url = 'https://riverside-commander-levy-majority.trycloudflare.com/score?team=$encoded';
+      final url = 'https://petition-lies-definitely-fitness.trycloudflare.com/score?team=$encoded';
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final decoded = jsonDecode(utf8.decode(response.bodyBytes));

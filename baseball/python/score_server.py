@@ -96,6 +96,41 @@ def parse_all_kbo_games_from_html(html: str):
 
     return {"games": results}
 
+def parse_kbo_score_from_html(html: str, my_team: str):
+    games = parse_all_kbo_games_from_html(html)["games"]
+    for game in games:
+        if game["home_team"] == my_team or game["away_team"] == my_team:
+            is_home = (game["home_team"] == my_team)
+            opponent = game["away_team"] if is_home else game["home_team"]
+            opponent_logo = game["away_logo"] if is_home else game["home_logo"]
+            opponent_pitcher = game["away_pitcher"] if is_home else game["home_pitcher"]
+            my_score = game.get("home_score") if is_home else game.get("away_score")
+            opponent_score = game.get("away_score") if is_home else game.get("home_score")
+
+            status = game["status"]
+            if my_score is not None and opponent_score is not None:
+                if my_score > opponent_score:
+                    status = "승리"
+                elif my_score < opponent_score:
+                    status = "패배"
+                else:
+                    status = "무승부"
+
+            return {
+                "my_team": my_team,
+                "opponent": opponent,
+                "my_logo": game["home_logo"] if is_home else game["away_logo"],
+                "opponent_logo": opponent_logo,
+                "my_pitcher": game["home_pitcher"] if is_home else game["away_pitcher"],
+                "opponent_pitcher": opponent_pitcher,
+                "my_score": my_score,
+                "opponent_score": opponent_score,
+                "status": status,
+            }
+
+    return {"error": "해당 팀의 경기를 찾을 수 없습니다."}
+
+
 
 # FastAPI 라우터
 @app.get("/score")
