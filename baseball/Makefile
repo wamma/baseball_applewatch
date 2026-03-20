@@ -25,7 +25,7 @@ make:
 
 	@echo "🧽 Cleaning CocoaPods..."
 	cd ios && rm -rf Pods Podfile.lock && \
-	pod cache clean --all && pod install
+	$(HOME)/.local/share/gem/ruby/3.4.0/bin/pod cache clean --all && $(HOME)/.local/share/gem/ruby/3.4.0/bin/pod install
 
 	@echo "✅ Done!"
 	@echo "📂 open ios/Runner.xcworkspace"
@@ -44,8 +44,8 @@ update-url:
 	@TUNNEL_URL=$$(grep -o 'https://[a-zA-Z0-9.-]*\.trycloudflare\.com' tmp/cloudflared.log | head -n 1); \
 	echo "📌 New tunnel URL: $$TUNNEL_URL"; \
 	if [ -n "$$TUNNEL_URL" ]; then \
-		sed -i '' "s|final url = 'https://.*';|final url = '$${TUNNEL_URL}/score?team=\$$encoded';|" lib/screens/team_status_page.dart; \
-		sed -i '' "s|Uri.parse(\"https://.*\/games\")|Uri.parse(\"$${TUNNEL_URL}/games\")|g" lib/screens/all_games_page.dart; \
+		sed -i '' "s|const String kBaseUrl = '.*';|const String kBaseUrl = '$${TUNNEL_URL}';|" lib/config.dart; \
+		echo "✅ Updated lib/config.dart"; \
 	else \
 		echo "❌ Failed to extract tunnel URL"; \
 	fi

@@ -6,6 +6,10 @@ class GameInfo {
   final String awayPitcher;
   final String homePitcher;
   final String status;
+  final String? awayScore;
+  final String? homeScore;
+  final String stadium;
+  final String gameTime;
 
   GameInfo({
     required this.awayTeam,
@@ -15,17 +19,25 @@ class GameInfo {
     required this.awayPitcher,
     required this.homePitcher,
     required this.status,
+    this.awayScore,
+    this.homeScore,
+    this.stadium = '',
+    this.gameTime = '',
   });
 
   factory GameInfo.fromJson(Map<String, dynamic> json) {
     return GameInfo(
-      awayTeam: json['away_team'],
-      homeTeam: json['home_team'],
-      awayLogo: json['away_logo'],
-      homeLogo: json['home_logo'],
-      awayPitcher: json['away_pitcher'],
-      homePitcher: json['home_pitcher'],
-      status: json['status'],
+      awayTeam: json['away_team'] ?? '',
+      homeTeam: json['home_team'] ?? '',
+      awayLogo: json['away_logo'] ?? '',
+      homeLogo: json['home_logo'] ?? '',
+      awayPitcher: json['away_pitcher'] ?? '',
+      homePitcher: json['home_pitcher'] ?? '',
+      status: json['status'] ?? '',
+      awayScore: json['away_score']?.toString(),
+      homeScore: json['home_score']?.toString(),
+      stadium: json['stadium'] ?? '',
+      gameTime: json['game_time'] ?? '',
     );
   }
 }

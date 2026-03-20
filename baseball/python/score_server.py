@@ -40,11 +40,14 @@ app.add_middleware(
 )
 
 # HTML 크롤링
-async def fetch_kbo_score_html() -> str:
+async def fetch_kbo_score_html(date: str = None) -> str:
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
-        await page.goto("https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx")
+        url = "https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx"
+        if date:
+            url += f"?GameDate={date}"
+        await page.goto(url)
         await page.wait_for_selector("li.game-cont", timeout=10000)
         html = await page.content()
         await browser.close()
@@ -72,6 +75,16 @@ def parse_all_kbo_games_from_html(html: str):
         status_tag = game.select_one('.staus')
         status_text = status_tag.text.strip() if status_tag else "상태 없음"
 
+        # 경기장 & 시간 파싱
+        stadium_tag = game.select_one('.stdt')
+        stadium_text = stadium_tag.text.strip() if stadium_tag else ''
+        time_tag = game.select_one('.game-time') or game.select_one('.time')
+        if not time_tag:
+            # li.game-cont 속성에서 시간 시도
+            time_text = game.get('game_time', '')
+        else:
+            time_text = time_tag.text.strip()
+
         item = {
             "away_team": away_team,
             "home_team": home_team,
@@ -79,7 +92,9 @@ def parse_all_kbo_games_from_html(html: str):
             "home_logo": home_logo_url,
             "away_pitcher": away_pitcher_name,
             "home_pitcher": home_pitcher_name,
-            "status": status_text
+            "status": status_text,
+            "stadium": stadium_text,
+            "game_time": time_text,
         }
 
         # 점수 있으면 추가
