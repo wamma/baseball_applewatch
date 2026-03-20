@@ -25,7 +25,7 @@ make:
 
 	@echo "🧽 Cleaning CocoaPods..."
 	cd ios && rm -rf Pods Podfile.lock && \
-	$(HOME)/.local/share/gem/ruby/3.4.0/bin/pod cache clean --all && $(HOME)/.local/share/gem/ruby/3.4.0/bin/pod install
+	pod cache clean --all && pod install
 
 	@echo "✅ Done!"
 	@echo "📂 open ios/Runner.xcworkspace"
@@ -39,7 +39,7 @@ update-url:
 
 	@nohup cloudflared tunnel --url http://localhost:8000 > tmp/cloudflared.log 2>&1 &
 
-	@sleep 5
+	@sleep 10
 
 	@TUNNEL_URL=$$(grep -o 'https://[a-zA-Z0-9.-]*\.trycloudflare\.com' tmp/cloudflared.log | head -n 1); \
 	echo "📌 New tunnel URL: $$TUNNEL_URL"; \

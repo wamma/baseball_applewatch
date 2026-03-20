@@ -32,3 +32,14 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Xcode project files must be tracked for cross-machine consistency
+!Runner.xcodeproj/
+!Runner.xcodeproj/project.pbxproj
+!Runner.xcodeproj/xcshareddata/
+!Runner.xcodeproj/xcshareddata/xcschemes/
+!Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+!Runner.xcworkspace/
+!Runner.xcworkspace/contents.xcworkspacedata
+!Runner.xcworkspace/xcshareddata/
+!Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
