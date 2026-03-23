@@ -12,6 +12,5 @@ import SwiftUI
 struct MyTeamWidgetWatchBundle: WidgetBundle {
     var body: some Widget {
         MyTeamWidgetWatch()
-        MyTeamWidgetWatchControl()
     }
 }

@@ -5,58 +5,58 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Full setup: start backend, update tunnel URL, clean + build Flutter, reinstall pods, open Xcode
+# 새 머신에서 최초 1회 실행 (xcode-select + xcodeproj 패치)
+make setup
+
+# 매일 시작할 때: Docker + tunnel + Flutter + CocoaPods + Xcode 열기
 make
 
-# Start Docker backend only
-docker-compose up -d
-
-# Update cloudflared tunnel URL in lib/config.dart
+# tunnel URL만 갱신 (서버 재시작 시)
 make update-url
 
-# Reinstall CocoaPods from scratch
-cd ios && rm -rf Pods Podfile.lock && pod cache clean --all && pod install
+# Flutter만 재빌드
+flutter clean && flutter pub get && flutter run
 
-# Flutter
-flutter clean && flutter pub get
-flutter run
-
-# Full reset (stops Docker, prunes all images/volumes, then rebuilds)
+# Full reset (Docker 포함 전체 초기화)
 make re
 ```
+
+## 머신 간 이동 시 체크리스트
+
+```bash
+# 1. 최신 코드 동기화
+git pull
+
+# 2. 최초 1회만 — xcode-select 설정 (머신당 한 번)
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+# 3. 매번 — 전체 빌드 (xcodeproj 패치 포함)
+make
+```
+
+**Xcode 수동 설정 불필요** — App Group, entitlements, 타겟 설정 모두 git에 포함됨
 
 ## Architecture
 
 This is a **KBO baseball score tracker** with three layers:
 
 ### 1. Python Backend (Docker)
-- Runs at `localhost:8000` via `docker-compose up -d` (builds from `./python`)
-- Exposed publicly via `cloudflared tunnel` — the public URL changes every session
-- **Critical**: `lib/config.dart` holds `kBaseUrl` which must match the active tunnel URL. `make update-url` handles this automatically.
-- API endpoints used by the app:
-  - `GET /games` — all today's KBO games
-  - `GET /score?team=<팀명>` — score for a specific team
+- Runs at `localhost:8000` via `docker-compose up -d`
+- Exposed publicly via `cloudflared tunnel` — URL changes every session
+- `make update-url` → `lib/config.dart` + `ios/MyTeamWidget/MyTeamWidget.swift` 동시 갱신
 
 ### 2. Flutter App (`lib/`)
-- `lib/config.dart` — single source of truth for backend URL (`kBaseUrl`)
-- `lib/main.dart` — 3-tab `BottomNavigationBar`: 마이팀(0) / 전체경기(1) / 마이페이지(2)
-- `lib/models/game_info.dart` — `GameInfo` model with `fromJson`
-- `lib/screens/all_games_page.dart` — fetches `GET /games`, renders game cards with score/pitcher/status
-- `lib/screens/team_status_page.dart` — fetches `GET /score?team=` every 60s with a `Timer.periodic`
-- `lib/screens/my_page_screen.dart` — team selection grid; persists to `SharedPreferences` and notifies the iOS widget via `MethodChannel('com.example.baseball/widget')`
+- `lib/config.dart` — 서버 URL 단일 소스 (`kBaseUrl`)
+- `lib/main.dart` — 3-tab: 마이팀(0) / 전체경기(1) / 마이페이지(2)
+- `lib/screens/my_page_screen.dart` — 팀 선택 → SharedPreferences + MethodChannel(`com.example.baseball/widget`) → iOS 위젯 갱신
 
 ### 3. iOS Native Targets (Xcode)
-- **MyTeamWidget** (`ios/MyTeamWidget/`) — iPhone home screen widget (small/medium). Fetches score directly from `kServerURL` (hardcoded in `MyTeamWidget.swift`). Refreshes every 5 minutes.
-- **MyTeamWidgetWatch** (`ios/MyTeamWidgetWatch/`) — Apple Watch widget (placeholder, not yet implemented).
+- **MyTeamWidgetExtension** (`ios/MyTeamWidget/`) — 홈화면(small/medium) + 잠금화면(circular/rectangular/inline) 위젯
+  - `kServerURL` — `make update-url`로 자동 갱신
+  - App Group `group.baseball.myteam`으로 선택팀 공유
+- **MyTeamWidgetWatch** (`ios/MyTeamWidgetWatch/`) — Apple Watch 위젯 (미구현)
 
-## Important Caveats
+## Known Issues
 
-**Two URLs must stay in sync** when the cloudflared tunnel restarts:
-1. `lib/config.dart` → `kBaseUrl` (Flutter app)
-2. `ios/MyTeamWidget/MyTeamWidget.swift` → `kServerURL` (iOS widget, line 7)
-
-`make update-url` only updates `lib/config.dart`. The Swift constant must be updated manually.
-
-**iOS Widget App Group**: The widget reads the selected team from `UserDefaults(suiteName: "group.com.example.baseball")`. This App Group must be configured in Xcode for both the Runner target and the widget extension.
-
-**Python backend directory**: `docker-compose.yml` builds from `./python` (relative to the `baseball/` folder). If the `python/` directory is missing, Docker build will fail.
+- **CocoaPods + Xcode 26**: xcodeproj 1.27.0이 object version 70 미지원 → `make setup`이 자동 패치
+- **CocoaPods 업그레이드 시**: 패치가 덮어씌워질 수 있으므로 `make setup` 재실행

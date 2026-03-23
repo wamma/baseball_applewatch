@@ -2,7 +2,7 @@ import WidgetKit
 import SwiftUI
 
 private let kAppGroupID = "group.baseball.myteam"
-private let kServerURL = "https://convertible-won-src-tours.trycloudflare.com"
+private let kServerURL = "https://cultural-aged-consequence-instructional.trycloudflare.com"
 
 // MARK: - Data Model
 

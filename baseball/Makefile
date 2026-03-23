@@ -1,10 +1,29 @@
 # Makefile
 
-.PHONY: default make update-url init-podfile fix-xcode
+.PHONY: default make setup update-url init-podfile fix-xcode
+
+XCODEPROJ_CONSTANTS = $(shell find /opt/homebrew/Cellar/cocoapods -name "constants.rb" 2>/dev/null | head -n 1)
 
 default: make
 
-make:
+setup:
+	@echo "⚙️  Setting up machine environment..."
+	@sudo xcode-select -s /Applications/Xcode.app/Contents/Developer && \
+		echo "✅ xcode-select → Xcode.app" || \
+		echo "⚠️  xcode-select 설정 실패 (sudo 권한 필요)"
+	@if [ -n "$(XCODEPROJ_CONSTANTS)" ]; then \
+		if ! grep -q "70 =>" "$(XCODEPROJ_CONSTANTS)"; then \
+			sed -i '' "s/77 => 'Xcode 16.0',/70 => 'Xcode 26.0',\n      77 => 'Xcode 16.0',/" "$(XCODEPROJ_CONSTANTS)"; \
+			echo "✅ xcodeproj Xcode 26 패치 완료"; \
+		else \
+			echo "✅ xcodeproj 패치 이미 적용됨"; \
+		fi \
+	else \
+		echo "⚠️  xcodeproj constants.rb 를 찾을 수 없음"; \
+	fi
+	@echo "✅ Setup complete!"
+
+make: setup
 	@echo "🐳 Starting Docker containers (background)..."
 	docker-compose up -d
 
@@ -48,6 +67,8 @@ update-url:
 		echo "✅ Updated lib/config.dart"; \
 		sed -i '' "s|private let kServerURL = \".*\"|private let kServerURL = \"$${TUNNEL_URL}\"|" ios/MyTeamWidget/MyTeamWidget.swift; \
 		echo "✅ Updated ios/MyTeamWidget/MyTeamWidget.swift"; \
+		sed -i '' "s|private let kServerURL = \".*\"|private let kServerURL = \"$${TUNNEL_URL}\"|" ios/MyTeamWidgetWatch/MyTeamWidgetWatch.swift; \
+		echo "✅ Updated ios/MyTeamWidgetWatch/MyTeamWidgetWatch.swift"; \
 	else \
 		echo "❌ Failed to extract tunnel URL"; \
 	fi

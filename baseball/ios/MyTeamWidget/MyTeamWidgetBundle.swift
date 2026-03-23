@@ -12,7 +12,5 @@ import SwiftUI
 struct MyTeamWidgetBundle: WidgetBundle {
     var body: some Widget {
         MyTeamWidget()
-        MyTeamWidgetControl()
-        MyTeamWidgetLiveActivity()
     }
 }
