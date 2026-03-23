@@ -19,7 +19,6 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		CD74AC3A2F71391E00613152 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE2236E2F6D3BB30082AD41 /* WidgetKit.framework */; };
 		CD74AC3B2F71391E00613152 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE223702F6D3BB30082AD41 /* SwiftUI.framework */; };
-		CDD0E0EB2F713CC5008220DB /* MyTeamWidgetWatchExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CD74AC392F71391E00613152 /* MyTeamWidgetWatchExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDE2236F2F6D3BB30082AD41 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE2236E2F6D3BB30082AD41 /* WidgetKit.framework */; };
 		CDE223712F6D3BB30082AD41 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDE223702F6D3BB30082AD41 /* SwiftUI.framework */; };
 		CDE223802F6D3BB50082AD41 /* MyTeamWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDE2236D2F6D3BB30082AD41 /* MyTeamWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -59,7 +58,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				CDD0E0EB2F713CC5008220DB /* MyTeamWidgetWatchExtension.appex in Embed Foundation Extensions */,
 				CDE223802F6D3BB50082AD41 /* MyTeamWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -102,14 +100,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CD74AC472F71392000613152 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		CD74AC472F71392000613152 /* Exceptions for "MyTeamWidgetWatch" folder in "MyTeamWidgetWatchExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = CD74AC382F71391E00613152 /* MyTeamWidgetWatchExtension */;
 		};
-		CDE223812F6D3BB50082AD41 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		CDE223812F6D3BB50082AD41 /* Exceptions for "MyTeamWidget" folder in "MyTeamWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -119,8 +117,30 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		CD74AC3C2F71391E00613152 /* MyTeamWidgetWatch */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CD74AC472F71392000613152 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MyTeamWidgetWatch; sourceTree = "<group>"; };
-		CDE223722F6D3BB30082AD41 /* MyTeamWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CDE223812F6D3BB50082AD41 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MyTeamWidget; sourceTree = "<group>"; };
+		CD74AC3C2F71391E00613152 /* MyTeamWidgetWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CD74AC472F71392000613152 /* Exceptions for "MyTeamWidgetWatch" folder in "MyTeamWidgetWatchExtension" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = MyTeamWidgetWatch;
+			sourceTree = "<group>";
+		};
+		CDE223722F6D3BB30082AD41 /* MyTeamWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CDE223812F6D3BB50082AD41 /* Exceptions for "MyTeamWidget" folder in "MyTeamWidgetExtension" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = MyTeamWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -501,13 +521,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
