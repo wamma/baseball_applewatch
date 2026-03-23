@@ -2,7 +2,7 @@
 //  MyTeamWidgetBundle.swift
 //  MyTeamWidget
 //
-//  Created by heongjun park on 6/29/25.
+//  Created by hyung jun on 3/20/26.
 //
 
 import WidgetKit
@@ -12,5 +12,7 @@ import SwiftUI
 struct MyTeamWidgetBundle: WidgetBundle {
     var body: some Widget {
         MyTeamWidget()
+        MyTeamWidgetControl()
+        MyTeamWidgetLiveActivity()
     }
 }

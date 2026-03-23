@@ -46,6 +46,8 @@ update-url:
 	if [ -n "$$TUNNEL_URL" ]; then \
 		sed -i '' "s|const String kBaseUrl = '.*';|const String kBaseUrl = '$${TUNNEL_URL}';|" lib/config.dart; \
 		echo "✅ Updated lib/config.dart"; \
+		sed -i '' "s|private let kServerURL = \".*\"|private let kServerURL = \"$${TUNNEL_URL}\"|" ios/MyTeamWidget/MyTeamWidget.swift; \
+		echo "✅ Updated ios/MyTeamWidget/MyTeamWidget.swift"; \
 	else \
 		echo "❌ Failed to extract tunnel URL"; \
 	fi

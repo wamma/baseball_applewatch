@@ -1,10 +1,8 @@
 import WidgetKit
 import SwiftUI
 
-// ⚠️ Xcode에서 App Group 설정 후 아래 ID를 실제 값으로 변경
-private let kAppGroupID = "group.com.example.baseball"
-// ⚠️ 서버 재시작 시 config.dart와 동일하게 업데이트
-private let kServerURL = "https://plans-black-chicken-vendor.trycloudflare.com"
+private let kAppGroupID = "group.baseball.myteam"
+private let kServerURL = "https://convertible-won-src-tours.trycloudflare.com"
 
 // MARK: - Data Model
 
@@ -33,8 +31,8 @@ struct GameData {
 
 struct GameEntry: TimelineEntry {
     let date: Date
-    let myTeam: String?   // nil = 팀 미설정
-    let gameData: GameData? // nil = 오늘 경기 없음 or 오류
+    let myTeam: String?
+    let gameData: GameData?
 }
 
 // MARK: - Provider
@@ -70,7 +68,6 @@ struct GameProvider: TimelineProvider {
 
         fetchGame(for: team) { gameData in
             let entry = GameEntry(date: Date(), myTeam: team, gameData: gameData)
-            // 5분마다 갱신
             let nextUpdate = Calendar.current.date(byAdding: .minute, value: 5, to: Date()) ?? Date()
             completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
         }
@@ -87,7 +84,7 @@ struct GameProvider: TimelineProvider {
                   json["error"] == nil else {
                 completion(nil); return
             }
-            let myScore      = (json["my_score"]      as? Int).map { "\($0)" } ?? ""
+            let myScore       = (json["my_score"]      as? Int).map { "\($0)" } ?? ""
             let opponentScore = (json["opponent_score"] as? Int).map { "\($0)" } ?? ""
             completion(GameData(
                 myTeam: team,
@@ -111,18 +108,31 @@ struct MyTeamWidgetEntryView: View {
             if entry.myTeam == nil {
                 noTeamView
             } else if let game = entry.gameData {
-                if family == .systemMedium {
+                switch family {
+                case .systemMedium:
                     mediumView(game)
-                } else {
+                case .accessoryCircular:
+                    circularView(game)
+                case .accessoryRectangular:
+                    rectangularView(game)
+                case .accessoryInline:
+                    inlineView(game)
+                default:
                     smallView(game)
                 }
             } else {
-                noGameView
+                switch family {
+                case .accessoryInline:
+                    Text("경기 없음")
+                case .accessoryCircular:
+                    Image(systemName: "baseball")
+                default:
+                    noGameView
+                }
             }
         }
     }
 
-    // 팀 미설정
     var noTeamView: some View {
         VStack(spacing: 8) {
             Image(systemName: "baseball")
@@ -135,7 +145,6 @@ struct MyTeamWidgetEntryView: View {
         }
     }
 
-    // 오늘 경기 없음
     var noGameView: some View {
         VStack(spacing: 6) {
             Text(entry.myTeam ?? "")
@@ -146,7 +155,6 @@ struct MyTeamWidgetEntryView: View {
         }
     }
 
-    // systemSmall
     func smallView(_ game: GameData) -> some View {
         VStack(spacing: 4) {
             Text(entry.myTeam ?? "")
@@ -167,7 +175,49 @@ struct MyTeamWidgetEntryView: View {
         .padding(8)
     }
 
-    // systemMedium
+    // accessoryCircular - 잠금화면 원형
+    func circularView(_ game: GameData) -> some View {
+        VStack(spacing: 1) {
+            Text(game.resultText)
+                .font(.system(size: 14, weight: .bold))
+                .widgetAccentable()
+            if !game.myScore.isEmpty {
+                Text("\(game.opponentScore):\(game.myScore)")
+                    .font(.system(size: 11, weight: .semibold))
+            }
+        }
+    }
+
+    // accessoryRectangular - 잠금화면 직사각형
+    func rectangularView(_ game: GameData) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(entry.myTeam ?? "")
+                .font(.caption2).bold()
+                .widgetAccentable()
+            HStack(spacing: 4) {
+                Text(game.resultText)
+                    .font(.system(size: 16, weight: .bold))
+                if !game.myScore.isEmpty {
+                    Text("\(game.opponentScore) : \(game.myScore)")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+            }
+            Text("vs \(game.opponent)")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // accessoryInline - 잠금화면 한 줄
+    @ViewBuilder
+    func inlineView(_ game: GameData) -> some View {
+        if game.myScore.isEmpty {
+            Text("\(entry.myTeam ?? "") vs \(game.opponent)")
+        } else {
+            Text("\(game.resultText) \(game.opponentScore):\(game.myScore) vs \(game.opponent)")
+        }
+    }
+
     func mediumView(_ game: GameData) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
@@ -214,7 +264,10 @@ struct MyTeamWidget: Widget {
         }
         .configurationDisplayName("마이팀")
         .description("오늘 내 팀 경기 결과를 확인하세요.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([
+            .systemSmall, .systemMedium,
+            .accessoryCircular, .accessoryRectangular, .accessoryInline
+        ])
     }
 }
 

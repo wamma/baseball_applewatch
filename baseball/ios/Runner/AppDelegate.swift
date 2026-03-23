@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import WidgetKit
 
-private let kAppGroupID = "group.com.example.baseball"
+private let kAppGroupID = "group.baseball.myteam"
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
