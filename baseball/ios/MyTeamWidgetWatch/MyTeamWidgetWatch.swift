@@ -2,7 +2,7 @@ import WidgetKit
 import SwiftUI
 
 private let kAppGroupID = "group.baseball.myteam"
-private let kServerURL = "https://cultural-aged-consequence-instructional.trycloudflare.com"
+private let kServerURL = "https://protocol-packet-floral-teacher.trycloudflare.com"
 
 // MARK: - Data Model
 
@@ -207,14 +207,4 @@ struct MyTeamWidgetWatch: Widget {
         .description("오늘 내 팀 경기 결과를 확인하세요.")
         .supportedFamilies([.accessoryRectangular, .accessoryCircular, .accessoryInline])
     }
-}
-
-#Preview(as: .accessoryRectangular) {
-    MyTeamWidgetWatch()
-} timeline: {
-    WatchGameEntry(
-        date: .now,
-        myTeam: "두산 베어스",
-        gameData: WatchGameData(myTeam: "두산 베어스", opponent: "롯데", myScore: "4", opponentScore: "1", status: "승리")
-    )
 }

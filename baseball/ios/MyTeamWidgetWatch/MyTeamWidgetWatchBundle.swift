@@ -2,7 +2,7 @@
 //  MyTeamWidgetWatchBundle.swift
 //  MyTeamWidgetWatch
 //
-//  Created by heongjun park on 3/19/26.
+//  Created by hyung jun on 3/23/26.
 //
 
 import WidgetKit
