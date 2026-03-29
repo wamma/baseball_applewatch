@@ -95,6 +95,7 @@ def parse_all_kbo_games_from_html(html: str):
             "status": status_text,
             "stadium": stadium_text,
             "game_time": time_text,
+            "game_id": game.get("g_id", ""),
         }
 
         # 점수 있으면 추가
