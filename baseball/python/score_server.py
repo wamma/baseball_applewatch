@@ -185,3 +185,15 @@ async def debug_games():
         return {"games": games}
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/debug/game_attrs")
+async def debug_game_attrs():
+    try:
+        html = await fetch_kbo_score_html()
+        soup = BeautifulSoup(html, 'html.parser')
+        games = []
+        for game in soup.select('li.game-cont'):
+            games.append(dict(game.attrs))
+        return {"games": games[:3]}  # 첫 3개만
+    except Exception as e:
+        return {"error": str(e)}
