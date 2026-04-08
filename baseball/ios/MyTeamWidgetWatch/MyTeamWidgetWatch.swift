@@ -2,7 +2,7 @@ import WidgetKit
 import SwiftUI
 
 private let kAppGroupID = "group.baseball.myteam"
-private let kServerURL = "https://protocol-packet-floral-teacher.trycloudflare.com"
+private let kServerURL = "https://hearing-lang-continually-paris.trycloudflare.com"
 
 // MARK: - Data Model
 
@@ -13,18 +13,26 @@ struct WatchGameData {
     let opponentScore: String
     let status: String
 
+    var isLive: Bool {
+        status.contains("회초") || status.contains("회말") || status.contains("진행") || status.contains("경기중")
+    }
+
+    var inningText: String {
+        (status.contains("회초") || status.contains("회말")) ? status : ""
+    }
+
     var resultText: String {
         if status.contains("승") { return "WIN" }
         if status.contains("패") { return "LOSE" }
         if status.contains("무") { return "DRAW" }
-        if status.contains("진행") || status.contains("경기중") { return "LIVE" }
+        if isLive { return "LIVE" }
         return "VS"
     }
 
     var resultColor: Color {
         if status.contains("승") { return Color(red: 0.08, green: 0.40, blue: 0.75) }
         if status.contains("패") { return .red }
-        if status.contains("진행") || status.contains("경기중") { return Color(red: 0, green: 0.6, blue: 0.2) }
+        if isLive { return Color(red: 0, green: 0.6, blue: 0.2) }
         return .primary
     }
 }
@@ -158,6 +166,11 @@ struct MyTeamWidgetWatchEntryView: View {
                     Text("\(game.opponentScore):\(game.myScore)")
                         .font(.system(size: 13, weight: .semibold))
                 }
+                if game.isLive && !game.inningText.isEmpty {
+                    Text(game.inningText)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(game.resultColor)
+                }
             }
             Text("vs \(game.opponent)")
                 .font(.caption2)
@@ -174,6 +187,11 @@ struct MyTeamWidgetWatchEntryView: View {
                 Text("\(game.opponentScore):\(game.myScore)")
                     .font(.system(size: 10, weight: .semibold))
             }
+            if game.isLive && !game.inningText.isEmpty {
+                Text(game.inningText)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(game.resultColor)
+            }
         }
     }
 
@@ -181,6 +199,8 @@ struct MyTeamWidgetWatchEntryView: View {
     func inlineView(_ game: WatchGameData) -> some View {
         if game.myScore.isEmpty {
             Text("\(entry.myTeam ?? "") vs \(game.opponent)")
+        } else if game.isLive && !game.inningText.isEmpty {
+            Text("\(game.inningText) \(game.opponentScore):\(game.myScore)")
         } else {
             Text("\(game.resultText) \(game.opponentScore):\(game.myScore)")
         }

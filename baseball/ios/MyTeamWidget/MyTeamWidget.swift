@@ -2,7 +2,7 @@ import WidgetKit
 import SwiftUI
 
 private let kAppGroupID = "group.baseball.myteam"
-private let kServerURL = "https://cultural-aged-consequence-instructional.trycloudflare.com"
+private let kServerURL = "https://hearing-lang-continually-paris.trycloudflare.com"
 
 // MARK: - Data Model
 
@@ -13,18 +13,26 @@ struct GameData {
     let opponentScore: String
     let status: String
 
+    var isLive: Bool {
+        status.contains("회초") || status.contains("회말") || status.contains("진행") || status.contains("경기중")
+    }
+
+    var inningText: String {
+        (status.contains("회초") || status.contains("회말")) ? status : ""
+    }
+
     var resultText: String {
         if status.contains("승") { return "WIN" }
         if status.contains("패") { return "LOSE" }
         if status.contains("무") { return "DRAW" }
-        if status.contains("진행") || status.contains("경기중") { return "LIVE" }
+        if isLive { return "LIVE" }
         return "VS"
     }
 
     var resultColor: Color {
         if status.contains("승") { return Color(red: 0.08, green: 0.40, blue: 0.75) }
         if status.contains("패") { return .red }
-        if status.contains("진행") || status.contains("경기중") { return Color(red: 0, green: 0.6, blue: 0.2) }
+        if isLive { return Color(red: 0, green: 0.6, blue: 0.2) }
         return .primary
     }
 }
@@ -167,6 +175,11 @@ struct MyTeamWidgetEntryView: View {
                 Text("\(game.opponentScore) - \(game.myScore)")
                     .font(.callout).bold()
             }
+            if game.isLive && !game.inningText.isEmpty {
+                Text(game.inningText)
+                    .font(.caption2).bold()
+                    .foregroundColor(game.resultColor)
+            }
             Text("vs \(game.opponent)")
                 .font(.caption2)
                 .foregroundColor(.secondary)
@@ -197,9 +210,15 @@ struct MyTeamWidgetEntryView: View {
             HStack(spacing: 4) {
                 Text(game.resultText)
                     .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(game.resultColor)
                 if !game.myScore.isEmpty {
                     Text("\(game.opponentScore) : \(game.myScore)")
                         .font(.system(size: 14, weight: .semibold))
+                }
+                if game.isLive && !game.inningText.isEmpty {
+                    Text(game.inningText)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(game.resultColor)
                 }
             }
             Text("vs \(game.opponent)")
@@ -213,6 +232,8 @@ struct MyTeamWidgetEntryView: View {
     func inlineView(_ game: GameData) -> some View {
         if game.myScore.isEmpty {
             Text("\(entry.myTeam ?? "") vs \(game.opponent)")
+        } else if game.isLive && !game.inningText.isEmpty {
+            Text("\(game.inningText) \(game.opponentScore):\(game.myScore) vs \(game.opponent)")
         } else {
             Text("\(game.resultText) \(game.opponentScore):\(game.myScore) vs \(game.opponent)")
         }
@@ -226,6 +247,11 @@ struct MyTeamWidgetEntryView: View {
                 Text(game.resultText)
                     .font(.largeTitle).bold()
                     .foregroundColor(game.resultColor)
+                if game.isLive && !game.inningText.isEmpty {
+                    Text(game.inningText)
+                        .font(.caption).bold()
+                        .foregroundColor(game.resultColor)
+                }
             }
             Spacer()
             VStack(spacing: 4) {
